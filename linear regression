@@ -1,3 +1,4 @@
+# importing necessary lib tools in python
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,14 +7,20 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler,PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 %matplotlib inline
+
+# download and read csv file with pandas
 file_name='https://s3-api.us-geo.objectstorage.softlayer.net/cf-courses-data/CognitiveClass/DA0101EN/coursera/project/kc_house_data_NaN.csv'
 df=pd.read_csv(file_name)
 df.head()
 df.describe()
 df.dtypes
 print(df.dtypes)
+
+# drop columns "id" and "Unnamed: 0"
 df.drop(["id","Unnamed: 0"], axis=1,inplace=True)
 df.describe()
+
+# print and replase NaN values with the average of columns
 print("number of NaN values for the column bedrooms :", df['bedrooms'].isnull().sum())
 print("number of NaN values for the column bathrooms :", df['bathrooms'].isnull().sum())
 mean=df['bedrooms'].mean()
@@ -22,22 +29,36 @@ mean=df['bathrooms'].mean()
 df['bathrooms'].replace(np.nan,mean, inplace=True)
 print("number of NaN values for the column bedrooms :", df['bedrooms'].isnull().sum())
 print("number of NaN values for the column bathrooms :", df['bathrooms'].isnull().sum())
+
+# value counting
 df['floors'].value_counts()
 df['floors'].value_counts().to_frame()
+
+# boxplot
 sns.boxplot(x="waterfront", y="price", data=df)
+
+# regplot
 sns.regplot(x="sqft_above", y="price", data=df)
+
+# correlating other features with price
 df.corr()['price'].sort_values()
+
+# fitting linearregression model with long and price
 X = df[['long']]
 Y = df['price']
 lm = LinearRegression()
 lm.fit(X,Y)
 lm.score(X, Y)
+
+# fitting linearRegression model with other features and price
 features = df[["floors", "waterfront","lat" ,"bedrooms" ,"sqft_basement" ,"view" ,"bathrooms","sqft_living15","sqft_above","grade","sqft_living"]]    
 X = features
 Y = df['price']
 lm = LinearRegression()
 lm.fit(X,Y)
 lm.score(X, Y)
+
+# splitting data into train and test set with cross validation
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 features =["floors", "waterfront","lat" ,"bedrooms" ,"sqft_basement" ,"view" ,"bathrooms","sqft_living15","sqft_above","grade","sqft_living"]    
@@ -49,10 +70,14 @@ x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.15, random
 
 print("number of test samples:", x_test.shape[0])
 print("number of training samples:",x_train.shape[0])
+
+# fitting Ridgemodel
 from sklearn.linear_model import Ridge
 RigeModel=Ridge(alpha=0.1)
 RigeModel.fit(x_train, y_train)
 RigeModel.score(x_test, y_test)
+
+# creating second order polynomial features and fitting ridgemodel
 pr=PolynomialFeatures(degree=2)
 x_train_pr=pr.fit_transform(x_train[["floors", "waterfront","lat" ,"bedrooms" ,"sqft_basement" ,"view" ,"bathrooms","sqft_living15","sqft_above","grade","sqft_living"]] )
 x_test_pr=pr.fit_transform(x_test[["floors", "waterfront","lat" ,"bedrooms" ,"sqft_basement" ,"view" ,"bathrooms","sqft_living15","sqft_above","grade","sqft_living"]] )
