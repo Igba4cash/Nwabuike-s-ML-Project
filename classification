@@ -1,3 +1,4 @@
+# importing necessary lib tools in python
 import itertools
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,26 +8,38 @@ import numpy as np
 import matplotlib.ticker as ticker
 from sklearn import preprocessing
 %matplotlib inline
+
+# download the file and read with pandas
 !wget -O loan_train.csv https://s3-api.us-geo.objectstorage.softlayer.net/cf-courses-data/CognitiveClass/ML0101ENv3/labs/loan_train.csv
 df = pd.read_csv('loan_train.csv')
 df.head()
 df.groupby(['Gender'])['loan_status'].value_counts(normalize=True)
 df['Gender'].replace(to_replace=['male','female'], value=[0,1],inplace=True)
 df.head()
+
+# Features selection
 Feature = df[['Principal','terms','age','Gender','weekend']]
 Feature = pd.concat([Feature,pd.get_dummies(df['education'])], axis=1)
 Feature.drop(['Master or Above'], axis = 1,inplace=True)
 Feature.head()
 X = Feature
 X[0:5]
+
+# defining the target
 y = df['loan_status'].values
 y[0:5]
+
+# feature scalling and standardization
 X= preprocessing.StandardScaler().fit(X).transform(X)
 X[0:5]
+
+# splitting train and test data
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.2, random_state=4)
 print ('Train set:', X_train.shape,  y_train.shape)
 print ('Test set:', X_test.shape,  y_test.shape)
+
+# importing K-means
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import metrics
 Ks = 10
@@ -50,6 +63,7 @@ yhat=neigh.predict(X_test)
 print(yhat[0:5])
 print(y_test[0:5])
 
+# importing SVM
 from sklearn import svm
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.2, random_state=4)
@@ -59,14 +73,19 @@ yhat = llf.predict(X_test)
 print(yhat [0:5])
 print(y_test [0:5])
 
+# train-test data splitting
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.2, random_state=4)
+
+# importing LR
 from sklearn.linear_model import LogisticRegression
 LR = LogisticRegression(C=0.01, solver='liblinear').fit(X_train,y_train)
 yhat = LR.predict(X_test)
 print(yhat[0:5])
 print(y_test[0:5])
 yhat = LR.predict(X_test)
+
+# evaluation metrics
 jaccard_similarity_score(y_test, yhat)
 f1_score(y_test, yhat, average='weighted')
 yhat_prob = LR.predict_proba(X_test)
